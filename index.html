@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Control de San</title>
+  <style>
+    :root {
+      --bg: #f3f5f8;
+      --surface: #ffffff;
+      --text: #1e293b;
+      --muted: #64748b;
+      --primary: #0f766e;
+      --primary-dark: #115e59;
+      --success: #16a34a;
+      --warning: #d97706;
+      --danger: #dc2626;
+      --whatsapp: #25d366;
+      --border: #e2e8f0;
+      --radius: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      padding-bottom: 40px;
+    }
+
+    .topbar {
+      background: var(--primary);
+      color: #fff;
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .topbar h1 {
+      font-size: 1.3rem;
+    }
+
+    .subtitle {
+      font-size: 0.85rem;
+      opacity: 0.9;
+    }
+
+    .topbar .btn-outline {
+      border-color: rgba(255, 255, 255, 0.5);
+      color: #fff;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 18px auto;
+      padding: 0 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+    }
+
+    .stat {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .stat-value {
+      font-size: 1.25rem;
+    }
+
+    .text-success { color: var(--success); }
+    .text-danger { color: var(--danger); }
+    .text-primary { color: var(--primary); }
+
+    .round-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .round-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .round-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+    }
+
+    .round-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      gap: 10px;
+    }
+
+    .section-header h2 {
+      font-size: 1.1rem;
+    }
+
+    .participants-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .member-row {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .member-row.is-winner {
+      border-left: 5px solid var(--primary);
+      background: #f0fdfa;
+    }
+
+    .member-main {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .turn-badge {
+      background: var(--primary);
+      color: #fff;
+      font-weight: 700;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+
+    .member-name {
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    .member-meta {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .member-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+
+    .badge-paid { background: #dcfce7; color: #166534; }
+    .badge-partial { background: #fef3c7; color: #92400e; }
+    .badge-pending { background: #fee2e2; color: #991b1b; }
+
+    .btn {
+      border: none;
+      border-radius: 8px;
+      padding: 9px 14px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+
+    .btn:hover { opacity: 0.9; }
+
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-secondary { background: #e2e8f0; color: var(--text); }
+    .btn-secondary.delivered { background: #dcfce7; color: #166534; }
+    .btn-whatsapp { background: var(--whatsapp); color: #064e3b; }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .btn-icon {
+      background: #e2e8f0;
+      padding: 8px 12px;
+    }
+    .btn-sm {
+      padding: 6px 10px;
+      font-size: 0.8rem;
+    }
+
+    select, input[type="text"], input[type="number"], input[type="tel"] {
+      width: 100%;
+      padding: 9px 11px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      margin-top: 4px;
+    }
+
+    #roundSelect {
+      width: auto;
+      margin-top: 0;
+    }
+
+    .backup-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .backup-buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .small-muted {
+      font-size: 0.83rem;
+      color: var(--muted);
+    }
+
+    .modal {
+      border: none;
+      border-radius: var(--radius);
+      padding: 20px;
+      width: min(92vw, 430px);
+      margin: auto;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal::backdrop {
+      background: rgba(15, 23, 42, 0.55);
+    }
+
+    .modal form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .modal label {
+      font-size: 0.88rem;
+      font-weight: 600;
+    }
+
+    .quick-pay-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #0f172a;
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 0.88rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s;
+    }
+
+    .toast.show {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1 id="sanTitle">Mi San</h1>
+      <p id="sanSubtitle" class="subtitle">Configura tu grupo para comenzar</p>
+    </div>
+    <button id="btnConfig" class="btn btn-outline">⚙️ Configurar</button>
+  </header>
+
+  <main class="container">
+    <section class="stats-grid">
+      <div class="card stat">
+        <span class="stat-label">Pote por Ronda</span>
+        <strong id="statPote" class="stat-value">RD$ 0</strong>
+      </div>
+      <div class="card stat">
+        <span class="stat-label">Recaudado (Ronda)</span>
+        <strong id="statRecaudado" class="stat-value text-success">RD$ 0</strong>
+      </div>
+      <div class="card stat">
+        <span class="stat-label">Pendiente (Ronda)</span>
+        <strong id="statPendiente" class="stat-value text-danger">RD$ 0</strong>
+      </div>
+      <div class="card stat">
+        <span class="stat-label">Le toca cobrar</span>
+        <strong id="statBeneficiario" class="stat-value text-primary">—</strong>
+      </div>
+    </section>
+
+    <section class="card round-bar">
+      <div class="round-controls">
+        <button id="prevRound" class="btn btn-icon" title="Ronda anterior">◀</button>
+        <div class="round-info">
+          <label for="roundSelect">Ronda / Mano:</label>
+          <select id="roundSelect"></select>
+        </div>
+        <button id="nextRound" class="btn btn-icon" title="Siguiente ronda">▶</button>
+      </div>
+      <div class="round-actions">
+        <button id="btnDelivery" class="btn btn-secondary">Marcar Pote Entregado</button>
+        <button id="btnWhatsApp" class="btn btn-whatsapp">📲 Copiar Resumen WhatsApp</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="section-header">
+        <h2>Participantes y Pagos</h2>
+        <button id="btnAddMember" class="btn btn-primary">+ Agregar Número</button>
+      </div>
+      <div id="participantsList" class="participants-list"></div>
+    </section>
+
+    <section class="card backup-bar">
+      <div>
+        <strong>Respaldo de Seguridad</strong>
+        <p class="small-muted">Guarda o restaura tus datos en un archivo para no perder nada.</p>
+      </div>
+      <div class="backup-buttons">
+        <button id="btnExport" class="btn btn-outline">⬇️ Exportar JSON</button>
+        <label class="btn btn-outline file-label">
+          ⬆️ Importar JSON
+          <input type="file" id="inputImport" accept=".json" hidden />
+        </label>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="modalConfig" class="modal">
+    <form id="formConfig" method="dialog">
+      <h3>Configuración del San</h3>
+      <label>
+        Nombre del San
+        <input type="text" id="cfgName" placeholder="Ej: San Familiar 2026" required />
+      </label>
+      <label>
+        Moneda
+        <select id="cfgCurrency">
+          <option value="RD$">RD$ (Pesos)</option>
+          <option value="US$">US$ (Dólares)</option>
+          <option value="€">€ (Euros)</option>
+        </select>
+      </label>
+      <label>
+        Cuota por número completo
+        <input type="number" id="cfgQuota" min="1" step="any" placeholder="Ej: 1000" required />
+      </label>
+      <label>
+        Frecuencia de pago
+        <select id="cfgFrequency">
+          <option value="Semanal">Semanal</option>
+          <option value="Quincenal">Quincenal</option>
+          <option value="Mensual">Mensual</option>
+          <option value="Diario">Diario</option>
+        </select>
+      </label>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-outline" onclick="closeModal('modalConfig')">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Guardar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="modalMember" class="modal">
+    <form id="formMember" method="dialog">
+      <h3 id="memberModalTitle">Agregar Número</h3>
+      <input type="hidden" id="memberId" />
+      <label>
+        Número / Turno de cobro
+        <input type="number" id="memberTurn" min="1" required />
+      </label>
+      <label>
+        Nombre del participante (o nombres si es medio número)
+        <input type="text" id="memberName" placeholder="Ej: Juan Pérez" required />
+      </label>
+      <label>
+        Teléfono (opcional, para recordatorios)
+        <input type="tel" id="memberPhone" placeholder="Ej: 8095551234" />
+      </label>
+      <label>
+        Participación
+        <select id="memberShare">
+          <option value="1">Número Completo (1.0)</option>
+          <option value="0.5">Medio Número (0.5)</option>
+        </select>
+      </label>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-outline" onclick="closeModal('modalMember')">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Guardar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="modalPayment" class="modal">
+    <form id="formPayment" method="dialog">
+      <h3>Registrar Pago</h3>
+      <p id="payParticipantInfo" class="small-muted"></p>
+      <input type="hidden" id="payMemberId" />
+      <label>
+        Monto pagado en esta ronda
+        <input type="number" id="payAmount" min="0" step="any" required />
+      </label>
+      <label>
+        Nota o método (Efectivo, BHD, Banreservas...)
+        <input type="text" id="payNote" placeholder="Ej: Transferencia Banreservas" />
+      </label>
+      <div class="quick-pay-row">
+        <button type="button" id="btnPayFull" class="btn btn-outline">Pagar Completo</button>
+        <button type="button" id="btnPayZero" class="btn btn-outline">Dejar en 0</button>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-outline" onclick="closeModal('modalPayment')">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Guardar Pago</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    const STORAGE_KEY = "sistema_san_v1";
+
+    let state = loadState();
+    let currentRound = 1;
+
+    function loadState() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          console.error("Error leyendo datos guardados:", e);
+        }
+      }
+      return {
+        config: {
+          name: "San Familiar",
+          currency: "RD$",
+          quota: 1000,
+          frequency: "Quincenal"
+        },
+        participants: [
+          { id: crypto.randomUUID(), turn: 1, name: "Organizador (Turno 1)", phone: "", share: 1 },
+          { id: crypto.randomUUID(), turn: 2, name: "Participante 2", phone: "", share: 1 }
+        ],
+        payments: {},
+        deliveries: {}
+      };
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function formatMoney(amount) {
+      return `${state.config.currency} ${Number(amount || 0).toLocaleString("es-DO", {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2
+      })}`;
+    }
+
+    function getTotalRounds() {
+      if (state.participants.length === 0) return 1;
+      const maxTurn = Math.max(...state.participants.map(p => Number(p.turn)));
+      return Math.max(maxTurn, 1);
+    }
+
+    function getExpectedQuota(participant) {
+      return Number(state.config.quota) * Number(participant.share || 1);
+    }
+
+    function getPaymentRecord(round, participantId) {
+      return state.payments?.[round]?.[participantId] || { amount: 0, note: "" };
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById("toast");
+      toast.textContent = msg;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 2600);
+    }
+
+    function render() {
+      const totalRounds = getTotalRounds();
+      if (currentRound > totalRounds) currentRound = totalRounds;
+      if (currentRound < 1) currentRound = 1;
+
+      document.getElementById("sanTitle").textContent = state.config.name;
+      document.getElementById("sanSubtitle").textContent =
+        `Cuota base: ${formatMoney(state.config.quota)} • Frecuencia: ${state.config.frequency}`;
+
+      const roundSelect = document.getElementById("roundSelect");
+      roundSelect.innerHTML = "";
+      for (let r = 1; r <= totalRounds; r++) {
+        const opt = document.createElement("option");
+        opt.value = r;
+        opt.textContent = `Ronda #${r} de ${totalRounds}`;
+        if (r === currentRound) opt.selected = true;
+        roundSelect.appendChild(opt);
+      }
+
+      const sorted = [...state.participants].sort((a, b) => a.turn - b.turn);
+
+      let totalPote = 0;
+      let totalRecaudado = 0;
+
+      sorted.forEach(p => {
+        const expected = getExpectedQuota(p);
+        const paid = Number(getPaymentRecord(currentRound, p.id).amount || 0);
+        totalPote += expected;
+        totalRecaudado += paid;
+      });
+
+      const totalPendiente = Math.max(totalPote - totalRecaudado, 0);
+
+      const winners = sorted.filter(p => Number(p.turn) === currentRound);
+      const winnerText = winners.length > 0
+        ? winners.map(w => w.name).join(" / ")
+        : "Sin asignar";
+
+      document.getElementById("statPote").textContent = formatMoney(totalPote);
+      document.getElementById("statRecaudado").textContent = formatMoney(totalRecaudado);
+      document.getElementById("statPendiente").textContent = formatMoney(totalPendiente);
+      document.getElementById("statBeneficiario").textContent = winnerText;
+
+      const btnDelivery = document.getElementById("btnDelivery");
+      const isDelivered = Boolean(state.deliveries?.[currentRound]);
+      btnDelivery.textContent = isDelivered ? "✅ Pote Entregado" : "Marcar Pote Entregado";
+      btnDelivery.classList.toggle("delivered", isDelivered);
+
+      const listEl = document.getElementById("participantsList");
+      listEl.innerHTML = "";
+
+      if (sorted.length === 0) {
+        listEl.innerHTML = `<p class="small-muted">No hay participantes todavía. Haz clic en "+ Agregar Número".</p>`;
+        return;
+      }
+
+      sorted.forEach(p => {
+        const expected = getExpectedQuota(p);
+        const record = getPaymentRecord(currentRound, p.id);
+        const paid = Number(record.amount || 0);
+        const isWinner = Number(p.turn) === currentRound;
+
+        let badgeClass = "badge-pending";
+        let badgeText = "Pendiente";
+        if (paid >= expected && expected > 0) {
+          badgeClass = "badge-paid";
+          badgeText = "Pagado";
+        } else if (paid > 0) {
+          badgeClass = "badge-partial";
+          badgeText = `Abonó ${formatMoney(paid)}`;
+        }
+
+        const row = document.createElement("div");
+        row.className = `member-row ${isWinner ? "is-winner" : ""}`;
+        row.innerHTML = `
+          <div class="member-main">
+            <div class="turn-badge">#${p.turn}</div>
+            <div>
+              <div class="member-name">
+                ${escapeHtml(p.name)} ${isWinner ? "🏆" : ""}
+              </div>
+              <div class="member-meta">
+                Cuota: <strong>${formatMoney(expected)}</strong>
+                ${p.share == 0.5 ? " (Medio número)" : ""}
+                ${record.note ? ` • 📝 ${escapeHtml(record.note)}` : ""}
+              </div>
+            </div>
+          </div>
+          <div class="member-actions">
+            <span class="badge ${badgeClass}">${badgeText}</span>
+            <button class="btn btn-primary btn-sm" data-pay="${p.id}">💵 Pago</button>
+            <button class="btn btn-outline btn-sm" data-edit="${p.id}" title="Editar">✏️</button>
+            <button class="btn btn-outline btn-sm" data-del="${p.id}" title="Eliminar">🗑️</button>
+          </div>
+        `;
+        listEl.appendChild(row);
+      });
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).close();
+    }
+
+    document.getElementById("roundSelect").addEventListener("change", e => {
+      currentRound = Number(e.target.value);
+      render();
+    });
+
+    document.getElementById("prevRound").addEventListener("click", () => {
+      if (currentRound > 1) {
+        currentRound--;
+        render();
+      }
+    });
+
+    document.getElementById("nextRound").addEventListener("click", () => {
+      if (currentRound < getTotalRounds()) {
+        currentRound++;
+        render();
+      }
+    });
+
+    document.getElementById("btnDelivery").addEventListener("click", () => {
+      state.deliveries[currentRound] = !state.deliveries[currentRound];
+      saveState();
+      render();
+    });
+
+    document.getElementById("btnConfig").addEventListener("click", () => {
+      document.getElementById("cfgName").value = state.config.name;
+      document.getElementById("cfgCurrency").value = state.config.currency;
+      document.getElementById("cfgQuota").value = state.config.quota;
+      document.getElementById("cfgFrequency").value = state.config.frequency;
+      document.getElementById("modalConfig").showModal();
+    });
+
+    document.getElementById("formConfig").addEventListener("submit", e => {
+      e.preventDefault();
+      state.config.name = document.getElementById("cfgName").value.trim();
+      state.config.currency = document.getElementById("cfgCurrency").value;
+      state.config.quota = Number(document.getElementById("cfgQuota").value);
+      state.config.frequency = document.getElementById("cfgFrequency").value;
+      saveState();
+      closeModal("modalConfig");
+      render();
+      showToast("Configuración guardada");
+    });
+
+    document.getElementById("btnAddMember").addEventListener("click", () => {
+      const nextTurn = state.participants.length > 0
+        ? Math.max(...state.participants.map(p => Number(p.turn))) + 1
+        : 1;
+
+      document.getElementById("memberModalTitle").textContent = "Agregar Número";
+      document.getElementById("memberId").value = "";
+      document.getElementById("memberTurn").value = nextTurn;
+      document.getElementById("memberName").value = "";
+      document.getElementById("memberPhone").value = "";
+      document.getElementById("memberShare").value = "1";
+      document.getElementById("modalMember").showModal();
+    });
+
+    document.getElementById("formMember").addEventListener("submit", e => {
+      e.preventDefault();
+      const id = document.getElementById("memberId").value;
+      const turn = Number(document.getElementById("memberTurn").value);
+      const name = document.getElementById("memberName").value.trim();
+      const phone = document.getElementById("memberPhone").value.trim();
+      const share = Number(document.getElementById("memberShare").value);
+
+      if (id) {
+        const idx = state.participants.findIndex(p => p.id === id);
+        if (idx !== -1) {
+          state.participants[idx] = { ...state.participants[idx], turn, name, phone, share };
+        }
+      } else {
+        state.participants.push({
+          id: crypto.randomUUID(),
+          turn,
+          name,
+          phone,
+          share
+        });
+      }
+
+      saveState();
+      closeModal("modalMember");
+      render();
+      showToast("Participante guardado");
+    });
+
+    document.getElementById("participantsList").addEventListener("click", e => {
+      const payId = e.target.getAttribute("data-pay");
+      const editId = e.target.getAttribute("data-edit");
+      const delId = e.target.getAttribute("data-del");
+
+      if (payId) {
+        const p = state.participants.find(x => x.id === payId);
+        if (!p) return;
+        const expected = getExpectedQuota(p);
+        const rec = getPaymentRecord(currentRound, p.id);
+
+        document.getElementById("payMemberId").value = p.id;
+        document.getElementById("payParticipantInfo").textContent =
+          `#${p.turn} ${p.name} • Cuota esperada: ${formatMoney(expected)}`;
+        document.getElementById("payAmount").value = rec.amount || expected;
+        document.getElementById("payNote").value = rec.note || "";
+        document.getElementById("modalPayment").showModal();
+      }
+
+      if (editId) {
+        const p = state.participants.find(x => x.id === editId);
+        if (!p) return;
+        document.getElementById("memberModalTitle").textContent = "Editar Número";
+        document.getElementById("memberId").value = p.id;
+        document.getElementById("memberTurn").value = p.turn;
+        document.getElementById("memberName").value = p.name;
+        document.getElementById("memberPhone").value = p.phone || "";
+        document.getElementById("memberShare").value = String(p.share || 1);
+        document.getElementById("modalMember").showModal();
+      }
+
+      if (delId) {
+        const p = state.participants.find(x => x.id === delId);
+        if (!p) return;
+        if (confirm(`¿Eliminar el número #${p.turn} (${p.name})?`)) {
+          state.participants = state.participants.filter(x => x.id !== delId);
+          saveState();
+          render();
+          showToast("Número eliminado");
+        }
+      }
+    });
+
+    document.getElementById("btnPayFull").addEventListener("click", () => {
+      const id = document.getElementById("payMemberId").value;
+      const p = state.participants.find(x => x.id === id);
+      if (p) document.getElementById("payAmount").value = getExpectedQuota(p);
+    });
+
+    document.getElementById("btnPayZero").addEventListener("click", () => {
+      document.getElementById("payAmount").value = 0;
+    });
+
+    document.getElementById("formPayment").addEventListener("submit", e => {
+      e.preventDefault();
+      const id = document.getElementById("payMemberId").value;
+      const amount = Number(document.getElementById("payAmount").value);
+      const note = document.getElementById("payNote").value.trim();
+
+      if (!state.payments[currentRound]) state.payments[currentRound] = {};
+      state.payments[currentRound][id] = { amount, note };
+
+      saveState();
+      closeModal("modalPayment");
+      render();
+      showToast("Pago actualizado");
+    });
+
+    document.getElementById("btnWhatsApp").addEventListener("click", async () => {
+      const totalRounds = getTotalRounds();
+      const sorted = [...state.participants].sort((a, b) => a.turn - b.turn);
+      const winners = sorted.filter(p => Number(p.turn) === currentRound);
+      const winnerNames = winners.length ? winners.map(w => w.name).join(" / ") : "Por definir";
+
+      let totalPote = 0;
+      let totalRecaudado = 0;
+
+      const lines = sorted.map(p => {
+        const expected = getExpectedQuota(p);
+        const paid = Number(getPaymentRecord(currentRound, p.id).amount || 0);
+        totalPote += expected;
+        totalRecaudado += paid;
+
+        let status = "❌ Pendiente";
+        if (paid >= expected && expected > 0) status = "✅ Pagado";
+        else if (paid > 0) status = `⚠️ Abonó ${formatMoney(paid)} / ${formatMoney(expected)}`;
+
+        return `#${p.turn} ${p.name}: ${status}`;
+      });
+
+      const pendiente = Math.max(totalPote - totalRecaudado, 0);
+      const entregado = state.deliveries?.[currentRound] ? "✅ Entregado" : "⏳ En proceso";
+
+      const text = [
+        `*📊 ${state.config.name.toUpperCase()}*`,
+        `*Ronda:* ${currentRound} de ${totalRounds} (${state.config.frequency})`,
+        `*🏆 Le toca cobrar a:* ${winnerNames}`,
+        `*Estado del pote:* ${entregado}`,
+        ``,
+        ...lines,
+        ``,
+        `*💰 Recaudado:* ${formatMoney(totalRecaudado)} de ${formatMoney(totalPote)}`,
+        `*📌 Falta por cobrar:* ${formatMoney(pendiente)}`
+      ].join("\n");
+
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast("Resumen copiado. Pégalo en WhatsApp");
+      } catch {
+        prompt("Copia este texto para WhatsApp:", text);
+      }
+    });
+
+    document.getElementById("btnExport").addEventListener("click", () => {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `respaldo-san-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    document.getElementById("inputImport").addEventListener("change", e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        try {
+          const imported = JSON.parse(ev.target.result);
+          if (imported.config && Array.isArray(imported.participants)) {
+            state = imported;
+            saveState();
+            currentRound = 1;
+            render();
+            showToast("Respaldo restaurado correctamente");
+          } else {
+            alert("El archivo no tiene el formato válido del sistema.");
+          }
+        } catch {
+          alert("Error al leer el archivo JSON.");
+        }
+      };
+      reader.readAsText(file);
+      e.target.value = "";
+    });
+
+    render();
+  </script>
+</body>
+</html>
