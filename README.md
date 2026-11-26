@@ -1,5 +1,13 @@
-# Sistema nuevo - San
+# Sistema Nuevo
 
-Esta rama contiene una versión limpia del sistema, basada en el mismo diseño y sin datos heredados del sistema anterior.
+Versión limpia con el diseño y la estructura completa del sistema anterior:
 
-Los datos se guardan en `localStorage` y pueden exportarse o importarse mediante el botón de respaldo.
+- Arranque del organizador
+- Participantes y cuotas quincenales
+- Entregas mensuales
+- Alertas de atraso
+- Resúmenes para WhatsApp
+- Configuración
+- Exportar e importar JSON
+
+Esta rama comienza sin participantes ni pagos registrados.
